@@ -9,7 +9,7 @@ Module dependencies are loaded / unloaded automatically as defined in
 Kmod uses the syscall finit_module(2) to load a kernel file into the kernel
 and if that fails init_module(2). Compressed files are not supported
 directly but users can provide a custom function to uncompress and load a module
-file into the kernel. (**SetInitFn**). This is to keep the number of external
+file into the kernel. (**SetInitFunc**). This is to keep the number of external
 dependencies low and also allows maximum flexibility.
 
 See the simple examples below and [modprobe.go](https://github.com/pmorjan/kmod/blob/master/cmd/modprobe/modprobe.go)
@@ -51,7 +51,7 @@ import (
 )
 
 func main() {
-    k, err := kmod.New(kmod.SetInitFn(modInit))
+    k, err := kmod.New(kmod.SetInitFunc(modInit))
     if err != nil {
         log.Fatal(err)
     }
