@@ -16,7 +16,7 @@ func ExampleKmod_Load() {
 	k.Load("brd", "rd_size=32768 rd_nr=32", 0)
 }
 
-func ExampleSetInitFn() {
+func ExampleSetInitFunc() {
 	// import "github.com/ulikunitz/xz"
 
 	fn := func(path, params string, flags int) error {
@@ -45,5 +45,5 @@ func ExampleSetInitFn() {
 		}
 		return unix.InitModule(buf, params)
 	}
-	New(SetInitFn(fn))
+	New(SetInitFunc(fn))
 }

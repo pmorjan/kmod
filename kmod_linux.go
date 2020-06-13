@@ -3,8 +3,8 @@
 // Package kmod provides functions to load and unload Linux kernel modules.
 //
 // Module dependencies are loaded / unloaded automatically according to <mod_dir>/modules.dep.
-// Compressed module files can be loaded via a custom function provided by the caller.
-// See SetInitFn() for details.
+// Compressed module files can be loaded via a custom InitFunc provided by the caller.
+// See SetInitFunc() for details.
 //
 package kmod
 
@@ -23,11 +23,14 @@ import (
 )
 
 // ErrModuleNotFound is the error resulting if a module can't be found.
-var ErrModuleNotFound = errors.New("Module not found")
+var ErrModuleNotFound = errors.New("module not found")
 
 // ErrModuleInUse is the error resulting if a module can't be unloaded because
 // it is in use.
-var ErrModuleInUse = errors.New("Module is in use")
+var ErrModuleInUse = errors.New("module is in use")
+
+// InitFunc provides a hook to load a kernel module into the kernel.
+type InitFunc func(filename string, params string, flags int) error
 
 type Kmod struct {
 	dryrun        bool
@@ -36,7 +39,7 @@ type Kmod struct {
 	ignoreStatus  bool
 	modConfig     string
 	modDir        string
-	modInitFn     func(string, string, int) error
+	modInitFunc   InitFunc
 	modRootdir    string
 	verbose       bool
 }
@@ -59,11 +62,11 @@ func SetIgnoreBuiltin() Option { return func(k *Kmod) { k.ignoreBuiltin = true }
 // to get the current status of a module.
 func SetIgnoreStatus() Option { return func(k *Kmod) { k.ignoreStatus = true } }
 
-// SetInitFn returns an Option that sets function fn to be used for loading module files
+// SetInitFunc returns an Option that sets fn to be used for loading module files
 // into the kernel. The default function tries to use finit_module(2) first and if that
 // failes init_module(2) but does not support compressed files.
-func SetInitFn(fn func(string, string, int) error) Option {
-	return func(k *Kmod) { k.modInitFn = fn }
+func SetInitFunc(fn InitFunc) Option {
+	return func(k *Kmod) { k.modInitFunc = fn }
 }
 
 // SetConfigFile returns an Option that specifies the (optional) configuration file
@@ -441,8 +444,8 @@ func (k *Kmod) load(m module) error {
 	}
 	k.infof("loading %s %s %s", m.name, m.path, m.params)
 
-	if k.modInitFn != nil {
-		return k.modInitFn(m.path, m.params, m.flags)
+	if k.modInitFunc != nil {
+		return k.modInitFunc(m.path, m.params, m.flags)
 	}
 
 	f, err := os.Open(m.path)

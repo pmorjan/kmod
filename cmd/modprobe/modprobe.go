@@ -16,7 +16,7 @@
 //   -q Quiet
 //   -r Remove MODULE(s)
 //   -v Verbose
-//   -v 
+//   -va
 //      Combines -v and -a
 // Example:
 //   modprobe -v brd rd_size=32768 rd_nr=4
@@ -80,7 +80,7 @@ func main() {
 	opts := []kmod.Option{
 		kmod.SetConfigFile(*cfgfile),
 		kmod.SetRootDir(*rootdir),
-		kmod.SetInitFn(modInitFn),
+		kmod.SetInitFunc(modInitFunc),
 	}
 	if *dryrun {
 		opts = append(opts, kmod.SetDryrun())
@@ -127,8 +127,8 @@ func main() {
 	}
 }
 
-// modInitFn supports uncompressed files and gzip and xz compressed files
-func modInitFn(path, params string, flags int) error {
+// modInitFunc supports uncompressed files and gzip and xz compressed files
+func modInitFunc(path, params string, flags int) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
