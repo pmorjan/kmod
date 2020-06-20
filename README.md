@@ -12,7 +12,7 @@ directly but users can provide a custom function to uncompress and load a module
 file into the kernel. (**SetInitFunc**). This is to keep the number of external
 dependencies low and also allows maximum flexibility.
 
-See the simple examples below and [modprobe.go](https://github.com/pmorjan/kmod/blob/master/cmd/modprobe/modprobe.go)
+See the simple examples below and [modprobe.go](cmd/modprobe/modprobe.go)
 for an complete example.
 
 ```go

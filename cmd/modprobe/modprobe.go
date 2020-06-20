@@ -1,4 +1,5 @@
 // The modprobe command loads and unloads Linux kernel modules and dependencies.
+// It supports uncompressed, gzip and xz compressed module files.
 //
 // Usage:
 //   modprobe [options] MODULE [SYMBOL=VALUE]...

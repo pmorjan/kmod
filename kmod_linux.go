@@ -4,7 +4,7 @@
 //
 // Module dependencies are loaded / unloaded automatically according to <mod_dir>/modules.dep.
 // Compressed module files can be loaded via a custom InitFunc provided by the caller.
-// See SetInitFunc() for details.
+// See SetInitFunc and cmd/modprobe for details.
 //
 package kmod
 
@@ -64,7 +64,7 @@ func SetIgnoreStatus() Option { return func(k *Kmod) { k.ignoreStatus = true } }
 
 // SetInitFunc returns an Option that sets fn to be used for loading module files
 // into the kernel. The default function tries to use finit_module(2) first and if that
-// failes init_module(2) but does not support compressed files.
+// failes init_module(2). To support compressed module files see the example cmd/modprobe.
 func SetInitFunc(fn InitFunc) Option {
 	return func(k *Kmod) { k.modInitFunc = fn }
 }
