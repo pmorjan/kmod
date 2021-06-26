@@ -114,7 +114,7 @@ func (k *Kmod) Load(name, params string, flags int) error {
 
 	realname, err := k.checkAlias(name)
 	if err != nil {
-		return fmt.Errorf("get alias %s failed: %v", name, err)
+		return fmt.Errorf("get alias %s failed: %w", name, err)
 	}
 	if realname != "" {
 		k.infof("%s is alias for %s", name, realname)
@@ -123,7 +123,7 @@ func (k *Kmod) Load(name, params string, flags int) error {
 
 	builtin, err := k.isBuiltin(name)
 	if err != nil {
-		return fmt.Errorf("check builtin %s failed: %v", name, err)
+		return fmt.Errorf("check builtin %s failed: %w", name, err)
 	}
 	if builtin {
 		k.infof("%s is builtin", name)
@@ -143,16 +143,16 @@ func (k *Kmod) Load(name, params string, flags int) error {
 
 	// load dependencies first, ignore errors
 	for i := len(modules) - 1; i > 0; i-- {
-		k.load(modules[i])
+		_ = k.load(modules[i])
 	}
 
 	// load target module, check error
 	err = k.load(modules[0])
-	if err == unix.EEXIST {
+	if errors.Is(err, unix.EEXIST) {
 		return nil
 	}
 	if err != nil {
-		return fmt.Errorf("load %s failed: %v", modules[0].name, err)
+		return fmt.Errorf("load %s failed: %w", modules[0].name, err)
 	}
 	return nil
 }
@@ -164,7 +164,7 @@ func (k *Kmod) Unload(name string) error {
 
 	alias, err := k.checkAlias(name)
 	if err != nil {
-		return fmt.Errorf("check alias %s failed: %v", name, err)
+		return fmt.Errorf("check alias %s failed: %w", name, err)
 	}
 	if alias != "" {
 		k.infof("%s is alias for %s", name, alias)
@@ -173,7 +173,7 @@ func (k *Kmod) Unload(name string) error {
 
 	builtin, err := k.isBuiltin(name)
 	if err != nil {
-		return fmt.Errorf("check builtin %s failed: %v", name, err)
+		return fmt.Errorf("check builtin %s failed: %w", name, err)
 	}
 	if builtin {
 		k.infof("%s is builtin", name)
@@ -197,7 +197,7 @@ func (k *Kmod) Unload(name string) error {
 
 	// unload dependencies, ignore errors
 	for i := 1; i < len(modules); i++ {
-		k.unload(modules[i])
+		_ = k.unload(modules[i])
 	}
 
 	return nil
@@ -209,7 +209,7 @@ func (k *Kmod) Dependencies(name string) ([]string, error) {
 
 	realname, err := k.checkAlias(name)
 	if err != nil {
-		return nil, fmt.Errorf("get alias %s failed: %v", name, err)
+		return nil, fmt.Errorf("get alias %s failed: %w", name, err)
 	}
 	if realname != "" {
 		k.infof("%s is alias for %s", name, realname)
@@ -218,7 +218,7 @@ func (k *Kmod) Dependencies(name string) ([]string, error) {
 
 	builtin, err := k.isBuiltin(name)
 	if err != nil {
-		return nil, fmt.Errorf("check builtin %s failed: %v", name, err)
+		return nil, fmt.Errorf("check builtin %s failed: %w", name, err)
 	}
 	if builtin {
 		return nil, fmt.Errorf("%s is builtin", name)
@@ -456,7 +456,7 @@ func (k *Kmod) load(m module) error {
 
 	// first try finit_module(2), then init_module(2)
 	err = unix.FinitModule(int(f.Fd()), m.params, m.flags)
-	if err == unix.ENOSYS {
+	if errors.Is(err, unix.ENOSYS) {
 		if m.flags != 0 {
 			return err
 		}
