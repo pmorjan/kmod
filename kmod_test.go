@@ -45,7 +45,6 @@ func createFiles() (string, []module) {
 	text = "alias ignore ignore\n"
 	text += "alias foo_a foo\n"
 	text += "alias bar-a bar\n"
-	text = "alias ignore ignore\n"
 	writeFile(filepath.Join(moddir, "modules.alias"), text)
 
 	text = "options foo foo1 foo2\n"
