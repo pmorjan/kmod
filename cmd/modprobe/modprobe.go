@@ -142,6 +142,7 @@ func modInitFunc(path, params string, flags int) error {
 		if err != nil {
 			return err
 		}
+		defer rd.Close()
 		return initModule(rd, params)
 	case ".xz":
 		rd, err := xz.NewReader(f)
