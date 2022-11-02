@@ -1,5 +1,5 @@
 // The modprobe command loads and unloads Linux kernel modules and dependencies.
-// It supports uncompressed, gzip and xz compressed module files.
+// It supports uncompressed, gzip, xz and zstd compressed module files.
 //
 // Usage:
 //   modprobe [options] MODULE [SYMBOL=VALUE]...
@@ -34,6 +34,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/klauspost/compress/zstd"
 	"github.com/pmorjan/kmod"
 	"github.com/ulikunitz/xz"
 	"golang.org/x/sys/unix"
@@ -148,6 +149,13 @@ func modInitFunc(path, params string, flags int) error {
 		if err != nil {
 			return err
 		}
+		return initModule(rd, params)
+	case ".zst":
+		rd, err := zstd.NewReader(f)
+		if err != nil {
+			return err
+		}
+		defer rd.Close()
 		return initModule(rd, params)
 	}
 
