@@ -13,7 +13,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -32,6 +32,7 @@ var ErrModuleInUse = errors.New("module is in use")
 // InitFunc provides a hook to load a kernel module into the kernel.
 type InitFunc func(filename string, params string, flags int) error
 
+// Kmod represents internal configuration
 type Kmod struct {
 	dryrun        bool
 	ignoreAlias   bool
@@ -241,7 +242,7 @@ func (k *Kmod) isBuiltin(name string) (bool, error) {
 	if k.ignoreBuiltin {
 		return false, nil
 	}
-	f, err := os.Open(filepath.Join(k.modDir, "/modules.builtin"))
+	f, err := os.Open(filepath.Join(k.modDir, "modules.builtin"))
 	if err != nil {
 		return false, err
 	}
@@ -328,7 +329,7 @@ func (k *Kmod) checkAlias(name string) (string, error) {
 	if k.ignoreAlias {
 		return "", nil
 	}
-	f, err := os.Open(filepath.Join(k.modDir, "/modules.alias"))
+	f, err := os.Open(filepath.Join(k.modDir, "modules.alias"))
 	if err != nil {
 		return "", err
 	}
@@ -358,7 +359,7 @@ func (k *Kmod) checkAlias(name string) (string, error) {
 
 // modDeps returns a module and all its depenencies
 func (k *Kmod) modDeps(name string) ([]module, error) {
-	f, err := os.Open(filepath.Join(k.modDir, "/modules.dep"))
+	f, err := os.Open(filepath.Join(k.modDir, "modules.dep"))
 	if err != nil {
 		return nil, err
 	}
@@ -460,7 +461,7 @@ func (k *Kmod) load(m module) error {
 		if m.flags != 0 {
 			return err
 		}
-		buf, err := ioutil.ReadAll(f)
+		buf, err := io.ReadAll(f)
 		if err != nil {
 			return err
 		}

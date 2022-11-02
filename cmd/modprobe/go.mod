@@ -1,6 +1,6 @@
 module github.com/pmorjan/kmod/cmd/modprobe
 
-go 1.14
+go 1.18
 
 replace github.com/pmorjan/kmod => ../..
 

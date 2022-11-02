@@ -29,7 +29,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -71,7 +70,7 @@ func main() {
 	flag.Parse()
 
 	if *quiet {
-		log.SetOutput(ioutil.Discard)
+		log.SetOutput(io.Discard)
 	}
 
 	if flag.NArg() < 1 || (*all || *va) && *remove {
@@ -168,7 +167,7 @@ func finitModule(fd int, params string) error {
 
 // initModule inserts a module via syscall init_module(2)
 func initModule(rd io.Reader, params string) error {
-	buf, err := ioutil.ReadAll(rd)
+	buf, err := io.ReadAll(rd)
 	if err != nil {
 		return err
 	}

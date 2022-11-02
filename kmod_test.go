@@ -2,7 +2,6 @@ package kmod
 
 import (
 	"bytes"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,7 +12,7 @@ import (
 
 func createFiles() (string, []module) {
 	writeFile := func(path, text string) {
-		if err := ioutil.WriteFile(path, []byte(text), 0644); err != nil {
+		if err := os.WriteFile(path, []byte(text), 0o600); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -23,13 +22,13 @@ func createFiles() (string, []module) {
 	}
 	kernelVersion := string(u.Release[:bytes.IndexByte(u.Release[:], 0)])
 
-	rootdir, err := ioutil.TempDir("", "kmod")
+	rootdir, err := os.MkdirTemp("", "kmod")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	moddir := filepath.Join(rootdir, kernelVersion)
-	if err := os.Mkdir(moddir, 0755); err != nil {
+	if err := os.Mkdir(moddir, 0o700); err != nil {
 		log.Fatal(err)
 	}
 
@@ -168,7 +167,7 @@ func TestDependencies(t *testing.T) {
 	}
 
 	if len(list) != len(modules) {
-		t.Fatalf("len(dependencie list) want: %d got:%d", len(modules), len(list))
+		t.Fatalf("len(dependency list) want: %d got:%d", len(modules), len(list))
 	}
 
 	for i := len(modules) - 2; i <= 0; i-- {
